@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10b981">
+    <meta name="description" content="Track your weekly plant intake goal of 30 different plants">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiMzAgUGxhbnRzIFRyYWNrZXIiLCJzaG9ydF9uYW1lIjoiUGxhbnRzIiwiZGVzY3JpcHRpb24iOiJUcmFjayB5b3VyIHdlZWtseSBwbGFudCBpbnRha2UiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2ZmZmZmZiIsInRoZW1lX2NvbG9yIjoiIzEwYjk4MSIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSGRwWkhSb1BTSXhPVElpSUdobGFXZG9kRDBpTVRreUlqNDhjbVZqZENCM2FXUjBhRDBpTVRreUlpQm9aV2xuYUhROUlqRTVNaUlnWm1sc2JEMGlJekV3WWprNE1TSXZQanh3WVhSb0lHUTlJazB4TVRZZ056SkRPVGNnTnpJZ056SWdPVGNnTnpJZ01URTJjekkwSURRMElEUTBJRFEwSURRMExUSTBJRFEwTFRRMElEUTBMVEUwTGpRZ01UVXROelV1TmlBek1pNDBMVGN6TGpZZ016SnBMVGN6TGpZZ016SXVOaTAwTUM0eUlEWXdMakl0TmpBdU1pQTJNQzR5TFRJd0lEQXROek11TmlBek1pNDBMVGN6TGpZZ016SXVOQ0l2UGp3dmMzWm5QZz09Iiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgZmlsbD0iIzEwYjk4MSIvPjxwYXRoIGQ9Ik0xMTYgNzJDOTcgNzIgNzIgOTcgNzIgMTE2czI0IDQ0IDQ0IDQ0IDQ0LTI0IDQ0LTQ0LTE0LjQgMTUtNzUuNiAzMi40LTczLjYgMzJpLTczLjYgMzIuNi00MC4yIDYwLjItNjAuMiA2MC4yLTIwIDAtNzMuNiAzMi40LTczLjYgMzIuNCIvPjwvc3ZnPg==">
+    <title>30 Plants Tracker</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            overscroll-behavior: none;
+        }
+        .plant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.5rem;
+        }
+        @media (max-width: 640px) {
+            .plant-grid {
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            }
+        }
+        .plant-card {
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+        .plant-card:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // Default comprehensive list of common edible plants
+        const DEFAULT_PLANTS = [
+            // Vegetables
+            "Arugula", "Asparagus", "Avocado", "Beets", "Bell Pepper", "Bok Choy",
+            "Broccoli", "Brussels Sprouts", "Cabbage", "Carrots", "Cauliflower",
+            "Celery", "Corn", "Cucumber", "Eggplant", "Fennel", "Garlic",
+            "Green Beans", "Kale", "Leeks", "Lettuce", "Mushrooms", "Okra",
+            "Onions", "Parsnips", "Peas", "Potatoes", "Pumpkin", "Radishes",
+            "Spinach", "Squash", "Sweet Potato", "Swiss Chard", "Tomatoes",
+            "Turnips", "Watercress", "Zucchini",
+            
+            // Fruits
+            "Apples", "Apricots", "Bananas", "Blackberries", "Blueberries",
+            "Cantaloupe", "Cherries", "Cranberries", "Dates", "Figs", "Grapefruit",
+            "Grapes", "Kiwi", "Lemon", "Lime", "Mango", "Nectarines", "Olives",
+            "Oranges", "Papaya", "Peaches", "Pears", "Pineapple", "Plums",
+            "Pomegranate", "Raspberries", "Strawberries", "Watermelon",
+            
+            // Legumes
+            "Black Beans", "Chickpeas", "Kidney Beans", "Lentils", "Lima Beans",
+            "Navy Beans", "Pinto Beans", "Soybeans", "Edamame",
+            
+            // Grains
+            "Amaranth", "Barley", "Brown Rice", "Buckwheat", "Bulgur", "Millet",
+            "Oats", "Quinoa", "Rye", "Spelt", "Wheat", "Wild Rice",
+            
+            // Nuts & Seeds
+            "Almonds", "Brazil Nuts", "Cashews", "Chia Seeds", "Flax Seeds",
+            "Hazelnuts", "Hemp Seeds", "Macadamia Nuts", "Pecans", "Pine Nuts",
+            "Pistachios", "Pumpkin Seeds", "Sesame Seeds", "Sunflower Seeds",
+            "Walnuts",
+            
+            // Herbs & Spices
+            "Basil", "Bay Leaves", "Cardamom", "Cilantro", "Cinnamon", "Cloves",
+            "Cumin", "Dill", "Ginger", "Mint", "Oregano", "Paprika", "Parsley",
+            "Rosemary", "Sage", "Thyme", "Turmeric", "Vanilla"
+        ].sort();
+
+        function PlantTracker() {
+            const [plants, setPlants] = useState([]);
+            const [weeklyData, setWeeklyData] = useState({});
+            const [currentWeek, setCurrentWeek] = useState('');
+            const [view, setView] = useState('home'); // 'home', 'select', 'history', 'import'
+            const [searchTerm, setSearchTerm] = useState('');
+            const [category, setCategory] = useState('all');
+
+            // Get week identifier (YYYY-Wnn format)
+            const getWeekId = (date = new Date()) => {
+                const d = new Date(date);
+                const dayNum = d.getUTCDay() || 7;
+                d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+                const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+                return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+            };
+
+            // Initialize data
+            useEffect(() => {
+                const savedPlants = localStorage.getItem('plantsList');
+                const savedWeeklyData = localStorage.getItem('weeklyData');
+                
+                setPlants(savedPlants ? JSON.parse(savedPlants) : DEFAULT_PLANTS);
+                setWeeklyData(savedWeeklyData ? JSON.parse(savedWeeklyData) : {});
+                setCurrentWeek(getWeekId());
+            }, []);
+
+            // Save to localStorage
+            useEffect(() => {
+                if (plants.length > 0) {
+                    localStorage.setItem('plantsList', JSON.stringify(plants));
+                }
+            }, [plants]);
+
+            useEffect(() => {
+                localStorage.setItem('weeklyData', JSON.stringify(weeklyData));
+            }, [weeklyData]);
+
+            // Get current week's eaten plants
+            const currentWeekPlants = useMemo(() => {
+                return weeklyData[currentWeek] || [];
+            }, [weeklyData, currentWeek]);
+
+            // Calculate statistics
+            const stats = useMemo(() => {
+                const weeks = Object.keys(weeklyData);
+                const weeksAchieved = weeks.filter(week => weeklyData[week].length >= 30).length;
+                const totalWeeks = weeks.length;
+                const allTimePlants = new Set();
+                weeks.forEach(week => weeklyData[week].forEach(plant => allTimePlants.add(plant)));
+                
+                return {
+                    currentCount: currentWeekPlants.length,
+                    weeksAchieved,
+                    totalWeeks,
+                    allTimePlants: allTimePlants.size
+                };
+            }, [weeklyData, currentWeekPlants]);
+
+            // Toggle plant selection
+            const togglePlant = (plant) => {
+                const newWeeklyData = { ...weeklyData };
+                const weekPlants = newWeeklyData[currentWeek] || [];
+                
+                if (weekPlants.includes(plant)) {
+                    newWeeklyData[currentWeek] = weekPlants.filter(p => p !== plant);
+                } else {
+                    newWeeklyData[currentWeek] = [...weekPlants, plant];
+                }
+                
+                setWeeklyData(newWeeklyData);
+            };
+
+            // Import CSV
+            const handleCSVImport = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const text = e.target.result;
+                    const lines = text.split(/\r?\n/);
+                    const newPlants = lines
+                        .map(line => line.trim())
+                        .filter(line => line && !plants.includes(line));
+                    
+                    if (newPlants.length > 0) {
+                        setPlants([...plants, ...newPlants].sort());
+                        alert(`Added ${newPlants.length} new plants!`);
+                    } else {
+                        alert('No new plants found in CSV');
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = '';
+            };
+
+            // Filter plants
+            const filteredPlants = useMemo(() => {
+                let filtered = plants;
+                
+                if (searchTerm) {
+                    filtered = filtered.filter(plant =>
+                        plant.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                }
+                
+                if (category !== 'all') {
+                    if (category === 'eaten') {
+                        filtered = filtered.filter(plant => currentWeekPlants.includes(plant));
+                    } else if (category === 'uneaten') {
+                        filtered = filtered.filter(plant => !currentWeekPlants.includes(plant));
+                    }
+                }
+                
+                return filtered;
+            }, [plants, searchTerm, category, currentWeekPlants]);
+
+            // Render home view
+            if (view === 'home') {
+                const progressPercent = (stats.currentCount / 30) * 100;
+                
+                return (
+                    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white pb-20">
+                        <div className="bg-green-600 text-white p-6 shadow-lg">
+                            <h1 className="text-2xl font-bold mb-2">30 Plants Tracker</h1>
+                            <p className="text-green-100 text-sm">Week {currentWeek}</p>
+                        </div>
+
+                        <div className="p-4 space-y-4">
+                            {/* Weekly Progress */}
+                            <div className="bg-white rounded-lg shadow-md p-6">
+                                <div className="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h2 className="text-3xl font-bold text-green-600">
+                                            {stats.currentCount}
+                                        </h2>
+                                        <p className="text-gray-600">of 30 plants this week</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-2xl">
+                                            {stats.currentCount >= 30 ? '🎉' : '🌱'}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
+                                    <div 
+                                        className="bg-green-600 h-4 rounded-full transition-all duration-500"
+                                        style={{ width: `${Math.min(progressPercent, 100)}%` }}
+                                    />
+                                </div>
+                                
+                                <p className="text-sm text-gray-500 text-right">
+                                    {Math.round(progressPercent)}% complete
+                                </p>
+                            </div>
+
+                            {/* Historical Stats */}
+                            <div className="bg-white rounded-lg shadow-md p-6">
+                                <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                                    All-Time Statistics
+                                </h3>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-green-50 rounded-lg p-4 text-center">
+                                        <div className="text-3xl font-bold text-green-600">
+                                            {stats.weeksAchieved}
+                                        </div>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Weeks Hit 30
+                                        </p>
+                                    </div>
+                                    
+                                    <div className="bg-blue-50 rounded-lg p-4 text-center">
+                                        <div className="text-3xl font-bold text-blue-600">
+                                            {stats.totalWeeks}
+                                        </div>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Total Weeks
+                                        </p>
+                                    </div>
+                                    
+                                    <div className="bg-purple-50 rounded-lg p-4 text-center col-span-2">
+                                        <div className="text-3xl font-bold text-purple-600">
+                                            {stats.allTimePlants}
+                                        </div>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Unique Plants All-Time
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {stats.totalWeeks > 0 && (
+                                    <div className="mt-4 pt-4 border-t border-gray-200">
+                                        <p className="text-sm text-gray-600 text-center">
+                                            Success Rate: {Math.round((stats.weeksAchieved / stats.totalWeeks) * 100)}%
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Quick Actions */}
+                            <button
+                                onClick={() => setView('select')}
+                                className="w-full bg-green-600 text-white py-4 rounded-lg font-semibold text-lg shadow-md active:bg-green-700"
+                            >
+                                + Add Plants
+                            </button>
+
+                            {currentWeekPlants.length > 0 && (
+                                <div className="bg-white rounded-lg shadow-md p-4">
+                                    <h3 className="font-semibold mb-2 text-gray-800">
+                                        This Week's Plants ({currentWeekPlants.length})
+                                    </h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {currentWeekPlants.slice(0, 15).map(plant => (
+                                            <span 
+                                                key={plant}
+                                                className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm"
+                                            >
+                                                {plant}
+                                            </span>
+                                        ))}
+                                        {currentWeekPlants.length > 15 && (
+                                            <span className="text-gray-500 text-sm py-1">
+                                                +{currentWeekPlants.length - 15} more
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Bottom Navigation */}
+                        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex">
+                            <button
+                                onClick={() => setView('home')}
+                                className="flex-1 py-4 text-green-600 font-semibold"
+                            >
+                                Home
+                            </button>
+                            <button
+                                onClick={() => setView('history')}
+                                className="flex-1 py-4 text-gray-600"
+                            >
+                                History
+                            </button>
+                            <button
+                                onClick={() => setView('import')}
+                                className="flex-1 py-4 text-gray-600"
+                            >
+                                Import
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Render plant selection view
+            if (view === 'select') {
+                return (
+                    <div className="min-h-screen bg-gray-50 pb-20">
+                        <div className="bg-green-600 text-white p-4 shadow-lg sticky top-0 z-10">
+                            <div className="flex items-center gap-3 mb-3">
+                                <button 
+                                    onClick={() => setView('home')}
+                                    className="text-2xl"
+                                >
+                                    ←
+                                </button>
+                                <div>
+                                    <h2 className="text-xl font-bold">Select Plants</h2>
+                                    <p className="text-green-100 text-sm">
+                                        {stats.currentCount}/30 this week
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <input
+                                type="text"
+                                placeholder="Search plants..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg text-gray-900"
+                            />
+                            
+                            <div className="flex gap-2 mt-2">
+                                <button
+                                    onClick={() => setCategory('all')}
+                                    className={`px-3 py-1 rounded-full text-sm ${
+                                        category === 'all' 
+                                            ? 'bg-white text-green-600' 
+                                            : 'bg-green-700 text-white'
+                                    }`}
+                                >
+                                    All ({plants.length})
+                                </button>
+                                <button
+                                    onClick={() => setCategory('eaten')}
+                                    className={`px-3 py-1 rounded-full text-sm ${
+                                        category === 'eaten' 
+                                            ? 'bg-white text-green-600' 
+                                            : 'bg-green-700 text-white'
+                                    }`}
+                                >
+                                    Eaten ({currentWeekPlants.length})
+                                </button>
+                                <button
+                                    onClick={() => setCategory('uneaten')}
+                                    className={`px-3 py-1 rounded-full text-sm ${
+                                        category === 'uneaten' 
+                                            ? 'bg-white text-green-600' 
+                                            : 'bg-green-700 text-white'
+                                    }`}
+                                >
+                                    Not Yet ({plants.length - currentWeekPlants.length})
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="p-4">
+                            <div className="plant-grid">
+                                {filteredPlants.map(plant => {
+                                    const isSelected = currentWeekPlants.includes(plant);
+                                    return (
+                                        <button
+                                            key={plant}
+                                            onClick={() => togglePlant(plant)}
+                                            className={`plant-card p-4 rounded-lg font-medium text-center shadow ${
+                                                isSelected
+                                                    ? 'bg-green-600 text-white'
+                                                    : 'bg-white text-gray-800 border border-gray-200'
+                                            }`}
+                                        >
+                                            <div className="text-2xl mb-1">
+                                                {isSelected ? '✓' : '○'}
+                                            </div>
+                                            <div className="text-sm leading-tight">
+                                                {plant}
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            
+                            {filteredPlants.length === 0 && (
+                                <div className="text-center py-12 text-gray-500">
+                                    No plants found
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+
+            // Render history view
+            if (view === 'history') {
+                const weeks = Object.keys(weeklyData).sort().reverse();
+                
+                return (
+                    <div className="min-h-screen bg-gray-50 pb-20">
+                        <div className="bg-green-600 text-white p-4 shadow-lg">
+                            <h2 className="text-xl font-bold">Weekly History</h2>
+                        </div>
+
+                        <div className="p-4 space-y-3">
+                            {weeks.map(week => {
+                                const count = weeklyData[week].length;
+                                const achieved = count >= 30;
+                                
+                                return (
+                                    <div 
+                                        key={week}
+                                        className="bg-white rounded-lg shadow p-4"
+                                    >
+                                        <div className="flex justify-between items-center">
+                                            <div>
+                                                <div className="font-semibold text-gray-800">
+                                                    Week {week}
+                                                    {week === currentWeek && (
+                                                        <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                                                            Current
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="text-sm text-gray-600 mt-1">
+                                                    {count} plants eaten
+                                                </div>
+                                            </div>
+                                            <div className="text-3xl">
+                                                {achieved ? '🎉' : '🌱'}
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
+                                            <div 
+                                                className={`h-2 rounded-full ${
+                                                    achieved ? 'bg-green-600' : 'bg-yellow-500'
+                                                }`}
+                                                style={{ width: `${Math.min((count / 30) * 100, 100)}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                            
+                            {weeks.length === 0 && (
+                                <div className="text-center py-12 text-gray-500">
+                                    No history yet. Start tracking!
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex">
+                            <button
+                                onClick={() => setView('home')}
+                                className="flex-1 py-4 text-gray-600"
+                            >
+                                Home
+                            </button>
+                            <button
+                                onClick={() => setView('history')}
+                                className="flex-1 py-4 text-green-600 font-semibold"
+                            >
+                                History
+                            </button>
+                            <button
+                                onClick={() => setView('import')}
+                                className="flex-1 py-4 text-gray-600"
+                            >
+                                Import
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Render import view
+            if (view === 'import') {
+                return (
+                    <div className="min-h-screen bg-gray-50 pb-20">
+                        <div className="bg-green-600 text-white p-4 shadow-lg">
+                            <h2 className="text-xl font-bold">Import Plants</h2>
+                        </div>
+
+                        <div className="p-4 space-y-4">
+                            <div className="bg-white rounded-lg shadow-md p-6">
+                                <h3 className="font-semibold mb-2 text-gray-800">
+                                    Import from CSV
+                                </h3>
+                                <p className="text-sm text-gray-600 mb-4">
+                                    Upload a CSV file with one plant name per line to add to your list.
+                                </p>
+                                
+                                <label className="block">
+                                    <input
+                                        type="file"
+                                        accept=".csv,.txt"
+                                        onChange={handleCSVImport}
+                                        className="block w-full text-sm text-gray-500
+                                            file:mr-4 file:py-2 file:px-4
+                                            file:rounded-full file:border-0
+                                            file:text-sm file:font-semibold
+                                            file:bg-green-50 file:text-green-700
+                                            hover:file:bg-green-100"
+                                    />
+                                </label>
+                            </div>
+
+                            <div className="bg-white rounded-lg shadow-md p-6">
+                                <h3 className="font-semibold mb-2 text-gray-800">
+                                    Current Plant Count
+                                </h3>
+                                <p className="text-3xl font-bold text-green-600">
+                                    {plants.length}
+                                </p>
+                                <p className="text-sm text-gray-600 mt-1">
+                                    plants in your database
+                                </p>
+                            </div>
+
+                            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                                <h4 className="font-semibold text-blue-900 mb-2">
+                                    CSV Format
+                                </h4>
+                                <p className="text-sm text-blue-800">
+                                    Your CSV should have one plant name per line:
+                                </p>
+                                <pre className="mt-2 text-xs bg-white p-2 rounded border border-blue-200">
+Spinach
+Kale
+Quinoa
+Chickpeas
+                                </pre>
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    if (confirm('Reset to default plant list? This will not affect your tracking data.')) {
+                                        setPlants(DEFAULT_PLANTS);
+                                    }
+                                }}
+                                className="w-full bg-red-100 text-red-700 py-3 rounded-lg font-semibold"
+                            >
+                                Reset to Default Plants
+                            </button>
+                        </div>
+
+                        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex">
+                            <button
+                                onClick={() => setView('home')}
+                                className="flex-1 py-4 text-gray-600"
+                            >
+                                Home
+                            </button>
+                            <button
+                                onClick={() => setView('history')}
+                                className="flex-1 py-4 text-gray-600"
+                            >
+                                History
+                            </button>
+                            <button
+                                onClick={() => setView('import')}
+                                className="flex-1 py-4 text-green-600 font-semibold"
+                            >
+                                Import
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+        }
+
+        ReactDOM.render(<PlantTracker />, document.getElementById('root'));
+    </script>
+</body>
+</html>
