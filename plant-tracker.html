@@ -48,43 +48,139 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // Default comprehensive list of common edible plants
+        // Default comprehensive list of common edible plants with categories
         const DEFAULT_PLANTS = [
             // Vegetables
-            "Arugula", "Asparagus", "Avocado", "Beets", "Bell Pepper", "Bok Choy",
-            "Broccoli", "Brussels Sprouts", "Cabbage", "Carrots", "Cauliflower",
-            "Celery", "Corn", "Cucumber", "Eggplant", "Fennel", "Garlic",
-            "Green Beans", "Kale", "Leeks", "Lettuce", "Mushrooms", "Okra",
-            "Onions", "Parsnips", "Peas", "Potatoes", "Pumpkin", "Radishes",
-            "Spinach", "Squash", "Sweet Potato", "Swiss Chard", "Tomatoes",
-            "Turnips", "Watercress", "Zucchini",
-            
+            { name: "Arugula", category: "Vegetables" },
+            { name: "Asparagus", category: "Vegetables" },
+            { name: "Avocado", category: "Vegetables" },
+            { name: "Beets", category: "Vegetables" },
+            { name: "Bell Pepper", category: "Vegetables" },
+            { name: "Bok Choy", category: "Vegetables" },
+            { name: "Broccoli", category: "Vegetables" },
+            { name: "Brussels Sprouts", category: "Vegetables" },
+            { name: "Cabbage", category: "Vegetables" },
+            { name: "Carrots", category: "Vegetables" },
+            { name: "Cauliflower", category: "Vegetables" },
+            { name: "Celery", category: "Vegetables" },
+            { name: "Corn", category: "Vegetables" },
+            { name: "Cucumber", category: "Vegetables" },
+            { name: "Eggplant", category: "Vegetables" },
+            { name: "Fennel", category: "Vegetables" },
+            { name: "Garlic", category: "Vegetables" },
+            { name: "Green Beans", category: "Vegetables" },
+            { name: "Kale", category: "Vegetables" },
+            { name: "Leeks", category: "Vegetables" },
+            { name: "Lettuce", category: "Vegetables" },
+            { name: "Mushrooms", category: "Vegetables" },
+            { name: "Okra", category: "Vegetables" },
+            { name: "Onions", category: "Vegetables" },
+            { name: "Parsnips", category: "Vegetables" },
+            { name: "Peas", category: "Vegetables" },
+            { name: "Potatoes", category: "Vegetables" },
+            { name: "Pumpkin", category: "Vegetables" },
+            { name: "Radishes", category: "Vegetables" },
+            { name: "Spinach", category: "Vegetables" },
+            { name: "Squash", category: "Vegetables" },
+            { name: "Sweet Potato", category: "Vegetables" },
+            { name: "Swiss Chard", category: "Vegetables" },
+            { name: "Tomatoes", category: "Vegetables" },
+            { name: "Turnips", category: "Vegetables" },
+            { name: "Watercress", category: "Vegetables" },
+            { name: "Zucchini", category: "Vegetables" },
+
             // Fruits
-            "Apples", "Apricots", "Bananas", "Blackberries", "Blueberries",
-            "Cantaloupe", "Cherries", "Cranberries", "Dates", "Figs", "Grapefruit",
-            "Grapes", "Kiwi", "Lemon", "Lime", "Mango", "Nectarines", "Olives",
-            "Oranges", "Papaya", "Peaches", "Pears", "Pineapple", "Plums",
-            "Pomegranate", "Raspberries", "Strawberries", "Watermelon",
-            
+            { name: "Apples", category: "Fruits" },
+            { name: "Apricots", category: "Fruits" },
+            { name: "Bananas", category: "Fruits" },
+            { name: "Blackberries", category: "Fruits" },
+            { name: "Blueberries", category: "Fruits" },
+            { name: "Cantaloupe", category: "Fruits" },
+            { name: "Cherries", category: "Fruits" },
+            { name: "Cranberries", category: "Fruits" },
+            { name: "Dates", category: "Fruits" },
+            { name: "Figs", category: "Fruits" },
+            { name: "Grapefruit", category: "Fruits" },
+            { name: "Grapes", category: "Fruits" },
+            { name: "Kiwi", category: "Fruits" },
+            { name: "Lemon", category: "Fruits" },
+            { name: "Lime", category: "Fruits" },
+            { name: "Mango", category: "Fruits" },
+            { name: "Nectarines", category: "Fruits" },
+            { name: "Olives", category: "Fruits" },
+            { name: "Oranges", category: "Fruits" },
+            { name: "Papaya", category: "Fruits" },
+            { name: "Peaches", category: "Fruits" },
+            { name: "Pears", category: "Fruits" },
+            { name: "Pineapple", category: "Fruits" },
+            { name: "Plums", category: "Fruits" },
+            { name: "Pomegranate", category: "Fruits" },
+            { name: "Raspberries", category: "Fruits" },
+            { name: "Strawberries", category: "Fruits" },
+            { name: "Watermelon", category: "Fruits" },
+
             // Legumes
-            "Black Beans", "Chickpeas", "Kidney Beans", "Lentils", "Lima Beans",
-            "Navy Beans", "Pinto Beans", "Soybeans", "Edamame",
-            
+            { name: "Black Beans", category: "Legumes" },
+            { name: "Chickpeas", category: "Legumes" },
+            { name: "Kidney Beans", category: "Legumes" },
+            { name: "Lentils", category: "Legumes" },
+            { name: "Lima Beans", category: "Legumes" },
+            { name: "Navy Beans", category: "Legumes" },
+            { name: "Pinto Beans", category: "Legumes" },
+            { name: "Soybeans", category: "Legumes" },
+            { name: "Edamame", category: "Legumes" },
+
             // Grains
-            "Amaranth", "Barley", "Brown Rice", "Buckwheat", "Bulgur", "Millet",
-            "Oats", "Quinoa", "Rye", "Spelt", "Wheat", "Wild Rice",
-            
+            { name: "Amaranth", category: "Grains" },
+            { name: "Barley", category: "Grains" },
+            { name: "Brown Rice", category: "Grains" },
+            { name: "Buckwheat", category: "Grains" },
+            { name: "Bulgur", category: "Grains" },
+            { name: "Millet", category: "Grains" },
+            { name: "Oats", category: "Grains" },
+            { name: "Quinoa", category: "Grains" },
+            { name: "Rye", category: "Grains" },
+            { name: "Spelt", category: "Grains" },
+            { name: "Wheat", category: "Grains" },
+            { name: "Wild Rice", category: "Grains" },
+
             // Nuts & Seeds
-            "Almonds", "Brazil Nuts", "Cashews", "Chia Seeds", "Flax Seeds",
-            "Hazelnuts", "Hemp Seeds", "Macadamia Nuts", "Pecans", "Pine Nuts",
-            "Pistachios", "Pumpkin Seeds", "Sesame Seeds", "Sunflower Seeds",
-            "Walnuts",
-            
+            { name: "Almonds", category: "Nuts & Seeds" },
+            { name: "Brazil Nuts", category: "Nuts & Seeds" },
+            { name: "Cashews", category: "Nuts & Seeds" },
+            { name: "Chia Seeds", category: "Nuts & Seeds" },
+            { name: "Flax Seeds", category: "Nuts & Seeds" },
+            { name: "Hazelnuts", category: "Nuts & Seeds" },
+            { name: "Hemp Seeds", category: "Nuts & Seeds" },
+            { name: "Macadamia Nuts", category: "Nuts & Seeds" },
+            { name: "Pecans", category: "Nuts & Seeds" },
+            { name: "Pine Nuts", category: "Nuts & Seeds" },
+            { name: "Pistachios", category: "Nuts & Seeds" },
+            { name: "Pumpkin Seeds", category: "Nuts & Seeds" },
+            { name: "Sesame Seeds", category: "Nuts & Seeds" },
+            { name: "Sunflower Seeds", category: "Nuts & Seeds" },
+            { name: "Walnuts", category: "Nuts & Seeds" },
+
             // Herbs & Spices
-            "Basil", "Bay Leaves", "Cardamom", "Cilantro", "Cinnamon", "Cloves",
-            "Cumin", "Dill", "Ginger", "Mint", "Oregano", "Paprika", "Parsley",
-            "Rosemary", "Sage", "Thyme", "Turmeric", "Vanilla"
-        ].sort();
+            { name: "Basil", category: "Herbs & Spices" },
+            { name: "Bay Leaves", category: "Herbs & Spices" },
+            { name: "Cardamom", category: "Herbs & Spices" },
+            { name: "Cilantro", category: "Herbs & Spices" },
+            { name: "Cinnamon", category: "Herbs & Spices" },
+            { name: "Cloves", category: "Herbs & Spices" },
+            { name: "Cumin", category: "Herbs & Spices" },
+            { name: "Dill", category: "Herbs & Spices" },
+            { name: "Ginger", category: "Herbs & Spices" },
+            { name: "Mint", category: "Herbs & Spices" },
+            { name: "Oregano", category: "Herbs & Spices" },
+            { name: "Paprika", category: "Herbs & Spices" },
+            { name: "Parsley", category: "Herbs & Spices" },
+            { name: "Rosemary", category: "Herbs & Spices" },
+            { name: "Sage", category: "Herbs & Spices" },
+            { name: "Thyme", category: "Herbs & Spices" },
+            { name: "Turmeric", category: "Herbs & Spices" },
+            { name: "Vanilla", category: "Herbs & Spices" }
+        ].sort((a, b) => a.name.localeCompare(b.name));
 
         function PlantTracker() {
             const [plants, setPlants] = useState([]);
@@ -93,11 +189,13 @@
             const [view, setView] = useState('home'); // 'home', 'select', 'history', 'import'
             const [searchTerm, setSearchTerm] = useState('');
             const [category, setCategory] = useState('all');
+            const [categoryFilter, setCategoryFilter] = useState('all');
             const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
             const [updateAvailable, setUpdateAvailable] = useState(false);
             const [waitingWorker, setWaitingWorker] = useState(null);
             const [checkingUpdate, setCheckingUpdate] = useState(false);
             const [newPlantName, setNewPlantName] = useState('');
+            const [newPlantCategory, setNewPlantCategory] = useState('Vegetables');
 
             // Get week identifier (YYYY-Wnn format)
             const getWeekId = (date = new Date()) => {
@@ -138,7 +236,23 @@
                 const savedPlants = localStorage.getItem('plantsList');
                 const savedWeeklyData = localStorage.getItem('weeklyData');
 
-                setPlants(savedPlants ? JSON.parse(savedPlants) : DEFAULT_PLANTS);
+                // Migrate old string-based plants to new object format
+                if (savedPlants) {
+                    const parsed = JSON.parse(savedPlants);
+                    // Check if it's old format (array of strings)
+                    if (parsed.length > 0 && typeof parsed[0] === 'string') {
+                        const migrated = parsed.map(plantName => ({
+                            name: plantName,
+                            category: 'Uncategorized'
+                        }));
+                        setPlants(migrated);
+                    } else {
+                        setPlants(parsed);
+                    }
+                } else {
+                    setPlants(DEFAULT_PLANTS);
+                }
+
                 setWeeklyData(savedWeeklyData ? JSON.parse(savedWeeklyData) : {});
                 setCurrentWeek(getWeekId());
             }, []);
@@ -232,16 +346,16 @@
             }, [weeklyData]);
 
             // Toggle plant selection
-            const togglePlant = (plant) => {
+            const togglePlant = (plantName) => {
                 const newWeeklyData = { ...weeklyData };
                 const weekPlants = newWeeklyData[currentWeek] || [];
-                
-                if (weekPlants.includes(plant)) {
-                    newWeeklyData[currentWeek] = weekPlants.filter(p => p !== plant);
+
+                if (weekPlants.includes(plantName)) {
+                    newWeeklyData[currentWeek] = weekPlants.filter(p => p !== plantName);
                 } else {
-                    newWeeklyData[currentWeek] = [...weekPlants, plant];
+                    newWeeklyData[currentWeek] = [...weekPlants, plantName];
                 }
-                
+
                 setWeeklyData(newWeeklyData);
             };
 
@@ -254,12 +368,31 @@
                 reader.onload = (e) => {
                     const text = e.target.result;
                     const lines = text.split(/\r?\n/);
-                    const newPlants = lines
-                        .map(line => line.trim())
-                        .filter(line => line && !plants.includes(line));
+                    const newPlants = [];
+
+                    lines.forEach(line => {
+                        line = line.trim();
+                        if (!line) return;
+
+                        // Skip header row if present
+                        if (line.toLowerCase().startsWith('category')) return;
+
+                        // Try to parse as "category,plant" format
+                        if (line.includes(',')) {
+                            const [category, plantName] = line.split(',').map(s => s.trim());
+                            if (plantName && !plants.some(p => p.name === plantName)) {
+                                newPlants.push({ name: plantName, category: category || 'Uncategorized' });
+                            }
+                        } else {
+                            // Single plant name without category
+                            if (!plants.some(p => p.name === line)) {
+                                newPlants.push({ name: line, category: 'Uncategorized' });
+                            }
+                        }
+                    });
 
                     if (newPlants.length > 0) {
-                        setPlants([...plants, ...newPlants].sort());
+                        setPlants([...plants, ...newPlants].sort((a, b) => a.name.localeCompare(b.name)));
                         alert(`Added ${newPlants.length} new plants!`);
                     } else {
                         alert('No new plants found in CSV');
@@ -279,16 +412,22 @@
                     return;
                 }
 
-                if (plants.includes(trimmedName)) {
+                if (plants.some(p => p.name === trimmedName)) {
                     alert('This plant already exists in your list!');
                     setNewPlantName('');
                     return;
                 }
 
-                setPlants([...plants, trimmedName].sort());
+                setPlants([...plants, { name: trimmedName, category: newPlantCategory }].sort((a, b) => a.name.localeCompare(b.name)));
                 setNewPlantName('');
                 alert(`Added "${trimmedName}" to your plant list!`);
             };
+
+            // Get unique categories
+            const categories = useMemo(() => {
+                const cats = new Set(plants.map(p => p.category));
+                return ['all', ...Array.from(cats).sort()];
+            }, [plants]);
 
             // Filter plants
             const filteredPlants = useMemo(() => {
@@ -296,20 +435,24 @@
 
                 if (searchTerm) {
                     filtered = filtered.filter(plant =>
-                        plant.toLowerCase().includes(searchTerm.toLowerCase())
+                        plant.name.toLowerCase().includes(searchTerm.toLowerCase())
                     );
+                }
+
+                if (categoryFilter !== 'all') {
+                    filtered = filtered.filter(plant => plant.category === categoryFilter);
                 }
 
                 if (category !== 'all') {
                     if (category === 'eaten') {
-                        filtered = filtered.filter(plant => currentWeekPlants.includes(plant));
+                        filtered = filtered.filter(plant => currentWeekPlants.includes(plant.name));
                     } else if (category === 'uneaten') {
-                        filtered = filtered.filter(plant => !currentWeekPlants.includes(plant));
+                        filtered = filtered.filter(plant => !currentWeekPlants.includes(plant.name));
                     }
                 }
 
                 return filtered;
-            }, [plants, searchTerm, category, currentWeekPlants]);
+            }, [plants, searchTerm, category, categoryFilter, currentWeekPlants]);
 
             // Handle update installation
             const installUpdate = () => {
@@ -537,13 +680,13 @@
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full px-4 py-2 rounded-lg text-gray-900"
                             />
-                            
-                            <div className="flex gap-2 mt-2">
+
+                            <div className="flex gap-2 mt-2 overflow-x-auto">
                                 <button
                                     onClick={() => setCategory('all')}
-                                    className={`px-3 py-1 rounded-full text-sm ${
-                                        category === 'all' 
-                                            ? 'bg-white text-green-600' 
+                                    className={`px-3 py-1 rounded-full text-sm whitespace-nowrap ${
+                                        category === 'all'
+                                            ? 'bg-white text-green-600'
                                             : 'bg-green-700 text-white'
                                     }`}
                                 >
@@ -551,9 +694,9 @@
                                 </button>
                                 <button
                                     onClick={() => setCategory('eaten')}
-                                    className={`px-3 py-1 rounded-full text-sm ${
-                                        category === 'eaten' 
-                                            ? 'bg-white text-green-600' 
+                                    className={`px-3 py-1 rounded-full text-sm whitespace-nowrap ${
+                                        category === 'eaten'
+                                            ? 'bg-white text-green-600'
                                             : 'bg-green-700 text-white'
                                     }`}
                                 >
@@ -561,25 +704,37 @@
                                 </button>
                                 <button
                                     onClick={() => setCategory('uneaten')}
-                                    className={`px-3 py-1 rounded-full text-sm ${
-                                        category === 'uneaten' 
-                                            ? 'bg-white text-green-600' 
+                                    className={`px-3 py-1 rounded-full text-sm whitespace-nowrap ${
+                                        category === 'uneaten'
+                                            ? 'bg-white text-green-600'
                                             : 'bg-green-700 text-white'
                                     }`}
                                 >
                                     Not Yet ({plants.length - currentWeekPlants.length})
                                 </button>
                             </div>
+
+                            <select
+                                value={categoryFilter}
+                                onChange={(e) => setCategoryFilter(e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg text-gray-900 mt-2"
+                            >
+                                {categories.map(cat => (
+                                    <option key={cat} value={cat}>
+                                        {cat === 'all' ? 'All Categories' : cat}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
 
                         <div className="p-4">
                             <div className="plant-grid">
                                 {filteredPlants.map(plant => {
-                                    const isSelected = currentWeekPlants.includes(plant);
+                                    const isSelected = currentWeekPlants.includes(plant.name);
                                     return (
                                         <button
-                                            key={plant}
-                                            onClick={() => togglePlant(plant)}
+                                            key={plant.name}
+                                            onClick={() => togglePlant(plant.name)}
                                             className={`plant-card p-4 rounded-lg font-medium text-center shadow ${
                                                 isSelected
                                                     ? 'bg-green-600 text-white'
@@ -590,13 +745,16 @@
                                                 {isSelected ? '✓' : '○'}
                                             </div>
                                             <div className="text-sm leading-tight">
-                                                {plant}
+                                                {plant.name}
+                                            </div>
+                                            <div className="text-xs mt-1 opacity-75">
+                                                {plant.category}
                                             </div>
                                         </button>
                                     );
                                 })}
                             </div>
-                            
+
                             {filteredPlants.length === 0 && (
                                 <div className="text-center py-12 text-gray-500">
                                     No plants found
@@ -801,22 +959,35 @@
                                     Add Plant Manually
                                 </h3>
                                 <p className="text-sm text-gray-600 mb-4">
-                                    Enter a plant name to add it to your list one at a time.
+                                    Enter a plant name and select a category to add it to your list.
                                 </p>
 
-                                <form onSubmit={handleManualPlantAdd} className="flex gap-2">
+                                <form onSubmit={handleManualPlantAdd} className="space-y-2">
                                     <input
                                         type="text"
                                         value={newPlantName}
                                         onChange={(e) => setNewPlantName(e.target.value)}
                                         placeholder="Enter plant name..."
-                                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                     />
+                                    <select
+                                        value={newPlantCategory}
+                                        onChange={(e) => setNewPlantCategory(e.target.value)}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    >
+                                        <option value="Vegetables">Vegetables</option>
+                                        <option value="Fruits">Fruits</option>
+                                        <option value="Legumes">Legumes</option>
+                                        <option value="Grains">Grains</option>
+                                        <option value="Nuts & Seeds">Nuts & Seeds</option>
+                                        <option value="Herbs & Spices">Herbs & Spices</option>
+                                        <option value="Uncategorized">Uncategorized</option>
+                                    </select>
                                     <button
                                         type="submit"
-                                        className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 active:bg-green-800"
+                                        className="w-full bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 active:bg-green-800"
                                     >
-                                        Add
+                                        Add Plant
                                     </button>
                                 </form>
                             </div>
@@ -826,9 +997,9 @@
                                     Import from CSV
                                 </h3>
                                 <p className="text-sm text-gray-600 mb-4">
-                                    Upload a CSV file with one plant name per line to add to your list.
+                                    Upload a CSV file with category and plant name to add to your list.
                                 </p>
-                                
+
                                 <label className="block">
                                     <input
                                         type="file"
@@ -860,14 +1031,23 @@
                                 <h4 className="font-semibold text-blue-900 mb-2">
                                     CSV Format
                                 </h4>
-                                <p className="text-sm text-blue-800">
-                                    Your CSV should have one plant name per line:
+                                <p className="text-sm text-blue-800 mb-2">
+                                    Your CSV can have category and plant name (comma-separated):
+                                </p>
+                                <pre className="text-xs bg-white p-2 rounded border border-blue-200">
+Category,Plant Name
+Vegetables,Spinach
+Vegetables,Kale
+Grains,Quinoa
+Legumes,Chickpeas
+                                </pre>
+                                <p className="text-sm text-blue-800 mt-2">
+                                    Or just plant names (one per line):
                                 </p>
                                 <pre className="mt-2 text-xs bg-white p-2 rounded border border-blue-200">
 Spinach
 Kale
 Quinoa
-Chickpeas
                                 </pre>
                             </div>
 
