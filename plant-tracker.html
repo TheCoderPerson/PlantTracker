@@ -13,9 +13,9 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { 
-            margin: 0; 
-            padding: 0; 
+        body {
+            margin: 0;
+            padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
             overscroll-behavior: none;
         }
@@ -35,6 +35,10 @@
         }
         .plant-card:active {
             transform: scale(0.95);
+        }
+        .grid-cols-13 {
+            display: grid;
+            grid-template-columns: repeat(13, minmax(0, 1fr));
         }
     </style>
 </head>
@@ -89,6 +93,7 @@
             const [view, setView] = useState('home'); // 'home', 'select', 'history', 'import'
             const [searchTerm, setSearchTerm] = useState('');
             const [category, setCategory] = useState('all');
+            const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
             const [updateAvailable, setUpdateAvailable] = useState(false);
             const [waitingWorker, setWaitingWorker] = useState(null);
             const [checkingUpdate, setCheckingUpdate] = useState(false);
@@ -102,6 +107,30 @@
                 const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
                 const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
                 return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+            };
+
+            // Get all 52 weeks for a given year
+            const getAllWeeksForYear = (year) => {
+                const weeks = [];
+                for (let i = 1; i <= 52; i++) {
+                    weeks.push(`${year}-W${String(i).padStart(2, '0')}`);
+                }
+                return weeks;
+            };
+
+            // Get week number from week ID
+            const getWeekNumber = (weekId) => {
+                const match = weekId.match(/W(\d+)/);
+                return match ? parseInt(match[1]) : 0;
+            };
+
+            // Get color based on plant count
+            const getWeekColor = (count) => {
+                if (count >= 30) return '#10b981'; // green-600 - success
+                if (count >= 20) return '#fbbf24'; // yellow-400 - good progress
+                if (count >= 10) return '#fb923c'; // orange-400 - some progress
+                if (count > 0) return '#f87171'; // red-400 - minimal progress
+                return '#e5e7eb'; // gray-200 - no data
             };
 
             // Initialize data
@@ -177,7 +206,7 @@
                 const totalWeeks = weeks.length;
                 const allTimePlants = new Set();
                 weeks.forEach(week => weeklyData[week].forEach(plant => allTimePlants.add(plant)));
-                
+
                 return {
                     currentCount: currentWeekPlants.length,
                     weeksAchieved,
@@ -185,6 +214,22 @@
                     allTimePlants: allTimePlants.size
                 };
             }, [weeklyData, currentWeekPlants]);
+
+            // Calculate current streak of consecutive weeks with 30+ plants
+            const currentStreak = useMemo(() => {
+                const weeks = Object.keys(weeklyData).sort().reverse(); // Most recent first
+                let streak = 0;
+
+                for (const week of weeks) {
+                    if (weeklyData[week].length >= 30) {
+                        streak++;
+                    } else {
+                        break; // Stop counting when we hit a week that didn't reach 30
+                    }
+                }
+
+                return streak;
+            }, [weeklyData]);
 
             // Toggle plant selection
             const togglePlant = (plant) => {
@@ -565,6 +610,9 @@
             // Render history view
             if (view === 'history') {
                 const weeks = Object.keys(weeklyData).sort().reverse();
+                const yearWeeks = getAllWeeksForYear(selectedYear);
+                const currentWeekNum = getWeekNumber(currentWeek);
+                const currentYear = new Date().getFullYear();
 
                 return (
                     <div className="min-h-screen bg-gray-50 pb-20">
@@ -573,52 +621,145 @@
                             <h2 className="text-xl font-bold">Weekly History</h2>
                         </div>
 
-                        <div className="p-4 space-y-3">
-                            {weeks.map(week => {
-                                const count = weeklyData[week].length;
-                                const achieved = count >= 30;
-                                
-                                return (
-                                    <div 
-                                        key={week}
-                                        className="bg-white rounded-lg shadow p-4"
+                        <div className="p-4 space-y-4">
+                            {/* Streak Display */}
+                            <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg shadow-md p-4">
+                                <div className="text-center">
+                                    <div className="text-sm font-semibold opacity-90 mb-1">
+                                        Current Streak
+                                    </div>
+                                    <div className="text-4xl font-bold">
+                                        🔥 {currentStreak}
+                                    </div>
+                                    <div className="text-sm opacity-90 mt-1">
+                                        {currentStreak === 1 ? 'week' : 'weeks'} of 30+ plants
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Year Selector */}
+                            <div className="bg-white rounded-lg shadow-md p-4">
+                                <div className="flex items-center justify-center gap-6">
+                                    <button
+                                        onClick={() => setSelectedYear(selectedYear - 1)}
+                                        className="text-2xl font-bold text-green-600 hover:text-green-700 active:scale-90 transition-transform"
                                     >
-                                        <div className="flex justify-between items-center">
-                                            <div>
-                                                <div className="font-semibold text-gray-800">
-                                                    Week {week}
-                                                    {week === currentWeek && (
-                                                        <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                                                            Current
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className="text-sm text-gray-600 mt-1">
-                                                    {count} plants eaten
-                                                </div>
-                                            </div>
-                                            <div className="text-3xl">
-                                                {achieved ? '🎉' : '🌱'}
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
-                                            <div 
-                                                className={`h-2 rounded-full ${
-                                                    achieved ? 'bg-green-600' : 'bg-yellow-500'
-                                                }`}
-                                                style={{ width: `${Math.min((count / 30) * 100, 100)}%` }}
+                                        ←
+                                    </button>
+                                    <div className="text-2xl font-bold text-gray-800">
+                                        {selectedYear}
+                                    </div>
+                                    <button
+                                        onClick={() => setSelectedYear(selectedYear + 1)}
+                                        className="text-2xl font-bold text-green-600 hover:text-green-700 active:scale-90 transition-transform"
+                                    >
+                                        →
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* 52 Week Grid */}
+                            <div className="bg-white rounded-lg shadow-md p-4">
+                                <div className="grid grid-cols-13 gap-1">
+                                    {yearWeeks.map(weekId => {
+                                        const count = weeklyData[weekId] ? weeklyData[weekId].length : 0;
+                                        const color = getWeekColor(count);
+                                        const weekNum = getWeekNumber(weekId);
+                                        const isCurrentWeek = weekId === currentWeek && selectedYear === currentYear;
+
+                                        return (
+                                            <div
+                                                key={weekId}
+                                                className="aspect-square rounded-sm relative"
+                                                style={{
+                                                    backgroundColor: color,
+                                                    border: isCurrentWeek ? '2px solid #ef4444' : 'none'
+                                                }}
+                                                title={`Week ${weekNum}: ${count} plants`}
                                             />
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Legend */}
+                                <div className="mt-4 pt-4 border-t border-gray-200">
+                                    <div className="text-xs text-gray-600 mb-2 text-center font-semibold">
+                                        Performance Scale
+                                    </div>
+                                    <div className="flex justify-center gap-3 flex-wrap">
+                                        <div className="flex items-center gap-1">
+                                            <div className="w-4 h-4 rounded-sm" style={{backgroundColor: '#e5e7eb'}} />
+                                            <span className="text-xs text-gray-600">No data</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <div className="w-4 h-4 rounded-sm" style={{backgroundColor: '#f87171'}} />
+                                            <span className="text-xs text-gray-600">1-9</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <div className="w-4 h-4 rounded-sm" style={{backgroundColor: '#fb923c'}} />
+                                            <span className="text-xs text-gray-600">10-19</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <div className="w-4 h-4 rounded-sm" style={{backgroundColor: '#fbbf24'}} />
+                                            <span className="text-xs text-gray-600">20-29</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <div className="w-4 h-4 rounded-sm" style={{backgroundColor: '#10b981'}} />
+                                            <span className="text-xs text-gray-600">30+</span>
                                         </div>
                                     </div>
-                                );
-                            })}
-                            
-                            {weeks.length === 0 && (
-                                <div className="text-center py-12 text-gray-500">
-                                    No history yet. Start tracking!
                                 </div>
-                            )}
+                            </div>
+
+                            {/* Weekly Details List */}
+                            <div className="space-y-3">
+                                <h3 className="font-semibold text-gray-800 text-lg">Week Details</h3>
+                                {weeks.map(week => {
+                                    const count = weeklyData[week].length;
+                                    const achieved = count >= 30;
+
+                                    return (
+                                        <div
+                                            key={week}
+                                            className="bg-white rounded-lg shadow p-4"
+                                        >
+                                            <div className="flex justify-between items-center">
+                                                <div>
+                                                    <div className="font-semibold text-gray-800">
+                                                        Week {week}
+                                                        {week === currentWeek && (
+                                                            <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                                                                Current
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="text-sm text-gray-600 mt-1">
+                                                        {count} plants eaten
+                                                    </div>
+                                                </div>
+                                                <div className="text-3xl">
+                                                    {achieved ? '🎉' : '🌱'}
+                                                </div>
+                                            </div>
+
+                                            <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
+                                                <div
+                                                    className={`h-2 rounded-full ${
+                                                        achieved ? 'bg-green-600' : 'bg-yellow-500'
+                                                    }`}
+                                                    style={{ width: `${Math.min((count / 30) * 100, 100)}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+
+                                {weeks.length === 0 && (
+                                    <div className="text-center py-12 text-gray-500">
+                                        No history yet. Start tracking!
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex">
