@@ -241,13 +241,42 @@
                     const parsed = JSON.parse(savedPlants);
                     // Check if it's old format (array of strings)
                     if (parsed.length > 0 && typeof parsed[0] === 'string') {
-                        const migrated = parsed.map(plantName => ({
-                            name: plantName,
-                            category: 'Uncategorized'
-                        }));
+                        // Create a lookup map for faster category matching
+                        const defaultPlantsMap = new Map(
+                            DEFAULT_PLANTS.map(plant => [plant.name.toLowerCase(), plant.category])
+                        );
+
+                        const migrated = parsed.map(plantName => {
+                            // Try to find category in DEFAULT_PLANTS
+                            const category = defaultPlantsMap.get(plantName.toLowerCase()) || 'Uncategorized';
+                            return {
+                                name: plantName,
+                                category: category
+                            };
+                        });
                         setPlants(migrated);
                     } else {
-                        setPlants(parsed);
+                        // Check if plants need category assignment (have undefined/null category)
+                        const needsCategoryUpdate = parsed.some(plant =>
+                            typeof plant === 'object' && (!plant.category || plant.category === 'Uncategorized')
+                        );
+
+                        if (needsCategoryUpdate) {
+                            const defaultPlantsMap = new Map(
+                                DEFAULT_PLANTS.map(plant => [plant.name.toLowerCase(), plant.category])
+                            );
+
+                            const updated = parsed.map(plant => {
+                                if (typeof plant === 'object' && (!plant.category || plant.category === 'Uncategorized')) {
+                                    const category = defaultPlantsMap.get(plant.name.toLowerCase()) || 'Uncategorized';
+                                    return { ...plant, category };
+                                }
+                                return plant;
+                            });
+                            setPlants(updated);
+                        } else {
+                            setPlants(parsed);
+                        }
                     }
                 } else {
                     setPlants(DEFAULT_PLANTS);
