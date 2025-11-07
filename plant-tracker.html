@@ -92,6 +92,7 @@
             const [updateAvailable, setUpdateAvailable] = useState(false);
             const [waitingWorker, setWaitingWorker] = useState(null);
             const [checkingUpdate, setCheckingUpdate] = useState(false);
+            const [newPlantName, setNewPlantName] = useState('');
 
             // Get week identifier (YYYY-Wnn format)
             const getWeekId = (date = new Date()) => {
@@ -211,7 +212,7 @@
                     const newPlants = lines
                         .map(line => line.trim())
                         .filter(line => line && !plants.includes(line));
-                    
+
                     if (newPlants.length > 0) {
                         setPlants([...plants, ...newPlants].sort());
                         alert(`Added ${newPlants.length} new plants!`);
@@ -221,6 +222,27 @@
                 };
                 reader.readAsText(file);
                 event.target.value = '';
+            };
+
+            // Add plant manually
+            const handleManualPlantAdd = (e) => {
+                e.preventDefault();
+                const trimmedName = newPlantName.trim();
+
+                if (!trimmedName) {
+                    alert('Please enter a plant name');
+                    return;
+                }
+
+                if (plants.includes(trimmedName)) {
+                    alert('This plant already exists in your list!');
+                    setNewPlantName('');
+                    return;
+                }
+
+                setPlants([...plants, trimmedName].sort());
+                setNewPlantName('');
+                alert(`Added "${trimmedName}" to your plant list!`);
             };
 
             // Filter plants
@@ -633,6 +655,31 @@
                         </div>
 
                         <div className="p-4 space-y-4">
+                            <div className="bg-white rounded-lg shadow-md p-6">
+                                <h3 className="font-semibold mb-2 text-gray-800">
+                                    Add Plant Manually
+                                </h3>
+                                <p className="text-sm text-gray-600 mb-4">
+                                    Enter a plant name to add it to your list one at a time.
+                                </p>
+
+                                <form onSubmit={handleManualPlantAdd} className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={newPlantName}
+                                        onChange={(e) => setNewPlantName(e.target.value)}
+                                        placeholder="Enter plant name..."
+                                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    />
+                                    <button
+                                        type="submit"
+                                        className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 active:bg-green-800"
+                                    >
+                                        Add
+                                    </button>
+                                </form>
+                            </div>
+
                             <div className="bg-white rounded-lg shadow-md p-6">
                                 <h3 className="font-semibold mb-2 text-gray-800">
                                     Import from CSV
